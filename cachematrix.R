@@ -1,15 +1,49 @@
-## Put comments here that give an overall description of what your
-## functions do
 
-## Write a short comment describing this function
+
+##  function makeCacheMatrix creates a special "matrix" object that can cache the input matrix and its inverse
 
 makeCacheMatrix <- function(x = matrix()) {
-
+        m <- NULL # sets the value of m to NULL 
+			#(provides a default if cacheSolve has not yet been used)
+	  y <- NULL # sets the value of y to NULL 
+			#(provides a default if cacheSolve has not yet been used)
+        setmatrix <- function(y) {#set the value of the matrix
+                x <<- y ## caches the inputted matrix 
+				##so that cacheSolve can check whether it has changed
+                m <<- NULL ## sets the value of m (inverse matrix) to NULL
+        }
+        getmatrix <- function() x ## gets the matrix
+        setinverse <- function(inverse) m <<- inverse ## caches the inverse matrix
+        getinverse <- function() m ## gets the inverse matrix
+        list(setmatrix = setmatrix, getmatrix = getmatrix,
+             setinverse = setinverse, getinverse = getinverse)
 }
 
 
-## Write a short comment describing this function
 
-cacheSolve <- function(x, ...) {
-        ## Return a matrix that is the inverse of 'x'
+## The function cacheSolve calls functions stored 
+##in the special "matrix" returned by makeCacheMatrix (above). 
+##If the inverse has already been calculated (and the matrix has not changed),
+##then cacheSolve retrieves the inverse from the cache. 
+##If the input is new, it calculates the inverse of the data 
+##and sets the inverse in the cache via the setinverse function.
+
+cacheSolve <- function(x=matrix(), ...) {
+# compare matrix to what was there before
+        m <- x$getinverse()##if an inverse has already been calculated this gets it 
+        if(!is.null(m)) {##check to see if cacheSolve has been run before
+                message("getting cached data")
+                return(m)
+        }
+        data <- x$getmatrix() # run the getmatrix function to get the value of the input matrix
+        m <- solve(data, ...) # compute the value of the inverse of the input matrix
+        x$setinverse(m) # run the setinverse function on the inverse to cache the inverse matrix
+        m # return the inverse
 }
+mat <- matrix(data = c(4,2,7,6), nrow = 2, ncol = 2)
+mat2 <- makeCacheMatrix(mat)
+cacheSolve(mat2)
+
+a<-makeCacheMatrix()
+a$setmatrix(matrix(1:4,2,2))
+cacheSolve(a)
